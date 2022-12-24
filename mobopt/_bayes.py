@@ -255,6 +255,7 @@ class MOBayesianOpt(object):
 
         return
 
+    #def maximize_smsego(self,n_iter=100,n_pts=100,level = 0.95,SaveInterval=10,FrontSampling=[10, 25, 50, 100]):
     # % maximize
     def maximize(self,
                  n_iter=100,
@@ -359,15 +360,17 @@ class MOBayesianOpt(object):
             if ReduceProb:
                 self.NewProb = prob * (1.0 - self.counter/n_iter)
 
+            #GP fit
             for i in range(self.NObj):
                 yy = self.space.f[:, i]
                 self.GP[i].fit(self.space.x, yy)
 
+            #Pareto Front calculation
             pop, logbook, front = NSGAII(self.NObj,
                                          self.__ObjectiveGP,
                                          self.pbounds,
                                          MU=n_pts)
-
+            # inserire smsego
             Population = np.asarray(pop)
             IndexF, FatorF = self.__LargestOfLeast(front, self.space.f)
             IndexPop, FatorPop = self.__LargestOfLeast(Population,
@@ -424,7 +427,7 @@ class MOBayesianOpt(object):
                     self.__PrintOutput(front[Ind, :], PopInd,
                                        SaveFile)
 
-        return front, np.asarray(pop)
+        return front, np.asarray(pop) #front:[n_pts,NObj] pop:[n_pts,x_space_shape]
 
     def __LargestOfLeast(self, front, F):
         NF = len(front)
