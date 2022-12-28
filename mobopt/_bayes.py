@@ -255,7 +255,59 @@ class MOBayesianOpt(object):
 
         return
 
-    #def maximize_smsego(self,n_iter=100,n_pts=100,level = 0.95,SaveInterval=10,FrontSampling=[10, 25, 50, 100]):
+    def maximize_smsego(self,
+                        n_iter=100,
+                        n_pts=100,
+                        level = 0.95,
+                        SaveInterval=10,
+                        FrontSampling=[10, 25, 50, 100]):
+        # Allocate necessary space
+        if self.N_init_points + n_iter > self.space._n_alloc_rows:
+            self.space._allocate(self.N_init_points + n_iter)
+
+
+        self.vprint("Start optimization loop")
+
+        for i in range(n_iter):
+
+            self.vprint(i, " of ", n_iter)
+            # GP fit
+            for i in range(self.NObj):
+                yy = self.space.f[:, i]
+                self.GP[i].fit(self.space.x, yy)
+
+            # Pareto Front calculation
+            pop, logbook, front = NSGAII(self.NObj,
+                                         self.__ObjectiveGP,
+                                         self.pbounds,
+                                         MU=n_pts)
+
+            # Epsilon
+            c = 1 - 1/(2**self.NObj)
+            eps = (np.max(front) - np.min(front))/n_pts + c*(n_iter - i)
+            # Reference Point
+            ref_point = list(np.min(front,axis=0) - 1)
+
+            # Initialize hypervolume
+            HV = hypervolume(pop, ref_point)
+
+            y_pot = np.zeros(self.NObj)
+            for i in range(self.NObj):
+                m,s = self.GP[i].predict(np.asarray(pop),return_std=True) #da rivedere
+                y_pot[i] = m - level*s
+
+            # Calculate penalty
+            p = self.__calc_penalty(front,y_pot,eps)
+
+            # Hypervolume contributions
+            #for i in range(n_pts):
+
+
+
+
+
+
+
     # % maximize
     def maximize(self,
                  n_iter=100,
@@ -626,3 +678,22 @@ class MOBayesianOpt(object):
         self.vprint("Read data from "+filename)
 
         return
+
+    def __calc_penalty(self,front,y_pot,eps):
+        # da ottimizzare
+        dom_idxs = []
+        eps_dom_idxs = []
+        n_pts = front.shape[0]
+        for i in range(n_pts):
+            for j in range(front.shape[1]):
+                if(y_pot[j] < front[i,j] ): #dominance
+                    dom_idxs.append(i)
+                #elif(y_pot[j] >= front[i,j] and y_pot[j] < eps + front[i,j]): #eps-dominance
+
+
+
+        p = 0
+
+        #for idx in dom_idxs:
+
+        return p
