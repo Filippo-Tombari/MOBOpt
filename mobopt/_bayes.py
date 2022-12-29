@@ -286,21 +286,32 @@ class MOBayesianOpt(object):
             c = 1 - 1/(2**self.NObj)
             eps = (np.max(front) - np.min(front))/n_pts + c*(n_iter - i)
             # Reference Point
-            ref_point = list(np.min(front,axis=0) - 1)
+            ref_point = list(np.min(front, axis=0) - 1)
 
             # Initialize hypervolume
-            HV = hypervolume(pop, ref_point)
+            HV = hypervolume(pop, ref_point)        #forse ha più senso usando front che pop??
 
+            #probabilmente bisogna fare questo ciclando for k in range(len(pop)): per ogni k genero y_pot,
+            #calcolo la penalty, calcolo hv contribution e salvo il valore in un parametro f_max e k nel parametro iter
+            #all'iterazione successiva, se f > f_max, aggiorno f_max = f e iter = k
+            #alla fine del ciclo ottengo x_best = pop[iter], in cui osservo Objective(x_best) e aggiorno front
             y_pot = np.zeros(self.NObj)
             for i in range(self.NObj):
-                m,s = self.GP[i].predict(np.asarray(pop),return_std=True) #da rivedere
+                m, s = self.GP[i].predict(np.asarray(pop), return_std=True) #da rivedere
                 y_pot[i] = m - level*s
 
             # Calculate penalty
-            p = self.__calc_penalty(front,y_pot,eps)
+            p = self.__calc_penalty(front, y_pot, eps)
 
             # Hypervolume contributions
-            #for i in range(n_pts):
+
+            #differenza tra quello che otterrei rimpiazzando y_pot con il punto corrispondente alla stessa x nella pareto front
+            # e quello che ho attualmente, cioè HV, più eventuale penalty
+
+            # new_front = front
+            # new_front[k] = y_pot
+            # new_HV = hypervolume(new_front, ref_point)
+            # hv_contr = new_HV - HV + p
 
 
 
@@ -682,18 +693,26 @@ class MOBayesianOpt(object):
     def __calc_penalty(self,front,y_pot,eps):
         # da ottimizzare
         dom_idxs = []
-        eps_dom_idxs = []
+        #eps_dom_idxs = []
+        eps_dom_idxs = list(range(self.Nobj))       #in caso di eps-dominance, devo rimuovere dalla lista degli indici quelli in cui y_pot[j] >= front[i,j]
         n_pts = front.shape[0]
         for i in range(n_pts):
             for j in range(front.shape[1]):
                 if(y_pot[j] < front[i,j] ): #dominance
                     dom_idxs.append(i)
-                #elif(y_pot[j] >= front[i,j] and y_pot[j] < eps + front[i,j]): #eps-dominance
-
+                    continue
+                elif(y_pot[j] >= front[i,j] and y_pot[j] < eps + front[i,j]): #eps-dominance
+                    dom_idxs.append(i)
+                    eps_dom_idxs.remove(j)
 
 
         p = 0
 
-        #for idx in dom_idxs:
+        for idx in dom_idxs:
+            prod = 1
+            for eps_idx in eps_dom_idxs:
+                prod = prod * (1 + (front[idx, eps_idx] - y_pot[eps_idx]))
+
+            p = p - 1 + prod
 
         return p
