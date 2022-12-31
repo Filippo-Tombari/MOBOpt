@@ -694,8 +694,9 @@ class MOBayesianOpt(object):
         # da ottimizzare
         dom_idxs = []
         #eps_dom_idxs = []
-        eps_dom_idxs = list(range(self.Nobj))       #in caso di eps-dominance, devo rimuovere dalla lista degli indici quelli in cui y_pot[j] >= front[i,j]
         n_pts = front.shape[0]
+        # qui probabilmente la lista ha dimensione n_pts x Nobj
+        eps_dom_idxs = n_pts*list(range(self.Nobj))  # in caso di eps-dominance, devo rimuovere dalla lista degli indici quelli in cui y_pot[j] >= front[i,j]
         for i in range(n_pts):
             for j in range(front.shape[1]):
                 if(y_pot[j] < front[i,j] ): #dominance
@@ -703,14 +704,14 @@ class MOBayesianOpt(object):
                     continue
                 elif(y_pot[j] >= front[i,j] and y_pot[j] < eps + front[i,j]): #eps-dominance
                     dom_idxs.append(i)
-                    eps_dom_idxs.remove(j)
+                    eps_dom_idxs[i].remove(j)
 
 
         p = 0
 
         for idx in dom_idxs:
             prod = 1
-            for eps_idx in eps_dom_idxs:
+            for eps_idx in eps_dom_idxs[idx]:
                 prod = prod * (1 + (front[idx, eps_idx] - y_pot[eps_idx]))
 
             p = p - 1 + prod
