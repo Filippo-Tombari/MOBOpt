@@ -76,13 +76,14 @@ def main():
 
     Optimize.initialize(init_points=N_init)
 
-    front, pop = Optimize.maximize(n_iter=NIter,
-                                   prob=Prob,
-                                   q=Q,
-                                   SaveInterval=10,
-                                   FrontSampling=[100],
-                                   ReduceProb=args.Reduce)
+    #front, pop = Optimize.maximize(n_iter=NIter,
+    #                               prob=Prob,
+    #                               q=Q,
+    #                               SaveInterval=10,
+    #                               FrontSampling=[100],
+    #                               ReduceProb=args.Reduce)
 
+    front, pop = Optimize.maximize_smsego(n_iter=NIter)
     PF = np.asarray([np.asarray(y) for y in Optimize.y_Pareto])
     PS = np.asarray([np.asarray(x) for x in Optimize.x_Pareto])
 

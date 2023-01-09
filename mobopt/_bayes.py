@@ -284,37 +284,55 @@ class MOBayesianOpt(object):
 
             # Epsilon
             c = 1 - 1/(2**self.NObj)
-            eps = (np.max(front) - np.min(front))/n_pts + c*(n_iter - i) #valutare se fare max e min rispetto a qualche asse
+            eps = np.max(np.max(front, axis=1) - np.min(front, axis=1))/n_pts + c*(n_iter - i)
             # Reference Point
             ref_point = list(np.min(front, axis=0) - 1)
 
             # Initialize hypervolume
-            HV = hypervolume(front, ref_point)        #capire se mettere pop o front
+            HV = hypervolume(front, ref_point)
 
-            #probabilmente bisogna fare questo ciclando for k in range(len(pop)): per ogni k genero y_pot,
-            #calcolo la penalty, calcolo hv contribution e salvo il valore in un parametro f_max e k nel parametro iter
-            #all'iterazione successiva, se f > f_max, aggiorno f_max = f e iter = k
-            #alla fine del ciclo ottengo x_best = pop[iter], in cui osservo Objective(x_best) e aggiorno front
+            idxs = np.zeros(shape=(len(pop)))
             for k in range(len(pop)):
                 y_pot = np.zeros(self.NObj)
                 for i in range(self.NObj):
-                    m, s = self.GP[i].predict(pop[k], return_std=True) #da vedere come aggiornare facendo passare tutta la frontiera
-                    y_pot[i] = m - level*s
+                    m, s = self.GP[i].predict(pop[k], return_std=True)
+                    y_pot[i] = m + level*s
 
                 # Calculate penalty
                 p = self.__calc_penalty(front, y_pot, eps)
 
                 # Hypervolume contributions
+                front_new = front
+                front_new[k] = y_pot
+                HV_new = hypervolume(front_new, ref_point) + p
+                idxs[k] = HV_new - HV
 
-                #differenza tra quello che otterrei rimpiazzando y_pot con il punto corrispondente alla stessa x nella pareto front
-                # e quello che ho attualmente, cioè HV, più eventuale penalty
+            best_iter = np.argmax(idxs)
+            self.x_try = pop[best_iter]
 
-                # new_front = front
-                # new_front[k] = y_pot
-                # new_HV = hypervolume(new_front, ref_point)
-                # hv_contr = new_HV - HV + p
+            dummy = self.space.observe_point(self.x_try)  # noqa
+            self.y_Pareto, self.x_Pareto = self.space.ParetoSet()
 
+            self.counter += 1
 
+            self.vprint(f"|PF| = {self.space.ParetoSize:4d} at"
+                        f" {self.counter:4d}"
+                        f" of {n_iter:4d}, w/ r = {self.NewProb:4.2f}")
+
+            if self.__save_partial:
+                for NFront in FrontSampling:
+                    if (self.counter % SaveInterval == 0) and \
+                            (NFront == FrontSampling[-1]):
+                        SaveFile = True
+                    else:
+                        SaveFile = False
+                    Ind = self.space.RS.choice(front.shape[0], NFront,
+                                               replace=False)
+                    PopInd = [pop[i] for i in Ind]
+                    self.__PrintOutput(front[Ind, :], PopInd,
+                                       SaveFile)
+
+        return front, np.asarray(pop)
 
 
 
@@ -722,12 +740,11 @@ class MOBayesianOpt(object):
         eps_pts = list(set(range(n_pts)).symmetric_difference(set(dom_idxs)))
         for i in eps_pts:
             prod = 1
+
             for j in range(front.shape[1]):
-                if (y_pot[j] >= front[i, j] and y_pot[j] < eps + front[i, j]):  # eps-dominance
-                    prod = prod * (1 + (y_pot[j] - front[idx, j])) #mettendolo così è positivo e per ogni componente nella striscia sto aggiungendo
-                                                                    # un penalty per "riportarla verso la pareto front
+                if  (y_pot[j] < front[i, j] - eps):  # eps-dominance
+                    prod = prod * (1 + (front[i, j] - y_pot[j]))
+
             p = p - 1 + prod
-
-
 
         return p
