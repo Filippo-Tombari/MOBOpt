@@ -289,13 +289,15 @@ class MOBayesianOpt(object):
             ref_point = list(np.min(front, axis=0) - 1)
 
             # Initialize hypervolume
-            HV = hypervolume(front, ref_point)
-
+            population = np.asarray(pop)
+            HV = hypervolume(pop, ref_point)
+            print(HV)
             idxs = np.zeros(shape=(len(pop)))
-            for k in range(len(pop)):
+            pop_values = [ind.fitness.wvalues for ind in pop]
+            for k in pop_values:
                 y_pot = np.zeros(self.NObj)
                 for i in range(self.NObj):
-                    m, s = self.GP[i].predict(pop[k], return_std=True)
+                    m, s = self.GP[i].predict(k[1], return_std=True)
                     y_pot[i] = m + level*s
 
                 # Calculate penalty
