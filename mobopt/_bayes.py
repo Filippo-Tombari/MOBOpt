@@ -286,28 +286,26 @@ class MOBayesianOpt(object):
             c = 1 - 1/(2**self.NObj)
             eps = np.max(np.max(front, axis=1) - np.min(front, axis=1))/n_pts + c*(n_iter - i)
             # Reference Point
-            ref_point = list(np.min(front, axis=0) - 1)
-
+            ref_point = list(np.max(front, axis=0) + 1)
             # Initialize hypervolume
             population = np.asarray(pop)
             HV = hypervolume(pop, ref_point)
-            print(HV)
             idxs = np.zeros(shape=(len(pop)))
-            pop_values = [ind.fitness.wvalues for ind in pop]
-            for k in pop_values:
+
+            for k in range(population.shape[0]):
                 y_pot = np.zeros(self.NObj)
                 for i in range(self.NObj):
-                    m, s = self.GP[i].predict(k[1], return_std=True)
+                    m, s = self.GP[i].predict(population[k].reshape(1,-1), return_std=True)
                     y_pot[i] = m + level*s
 
                 # Calculate penalty
                 p = self.__calc_penalty(front, y_pot, eps)
 
-                # Hypervolume contributions
+                # Hypervolume contributions (da correggere perchè bisogna passare le x ad hypervolume)
                 front_new = front
                 front_new[k] = y_pot
-                HV_new = hypervolume(front_new, ref_point) + p
-                idxs[k] = HV_new - HV
+                HV_new = hypervolume(front_new, ref_point) - p
+                idxs[k] = HV - HV_new
 
             best_iter = np.argmax(idxs)
             self.x_try = pop[best_iter]

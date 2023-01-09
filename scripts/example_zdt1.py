@@ -83,7 +83,7 @@ def main():
     #                               FrontSampling=[100],
     #                               ReduceProb=args.Reduce)
 
-    front, pop = Optimize.maximize_smsego(n_iter=NIter)
+    front, pop = Optimize.maximize_smsego(n_iter=NIter,FrontSampling=[100])
     PF = np.asarray([np.asarray(y) for y in Optimize.y_Pareto])
     PS = np.asarray([np.asarray(x) for x in Optimize.x_Pareto])
 
