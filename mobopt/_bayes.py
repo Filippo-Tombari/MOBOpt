@@ -310,7 +310,7 @@ class MOBayesianOpt(object):
             best_iter = np.argmax(idxs)
             self.x_try = pop[best_iter]
 
-            dummy = self.space.observe_point(self.x_try)  # noqa
+            dummy = self.space.observe_point(self.x_try)
             self.y_Pareto, self.x_Pareto = self.space.ParetoSet()
 
             self.counter += 1
