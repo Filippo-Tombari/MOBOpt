@@ -272,11 +272,13 @@ class MOBayesianOpt(object):
 
             self.vprint(i, " of ", n_iter)
             # GP fit
-            for i in range(self.NObj):
-                yy = self.space.f[:, i]
-                self.GP[i].fit(self.space.x, yy)
+            for j in range(self.NObj):
+                yy = self.space.f[:, j]
+                self.GP[j].fit(self.space.x, yy)
 
-            # Pareto Front calculation
+            # Pareto Front calculation with Pygmo
+
+            # Generation of the evaluation points
             pop, logbook, front = NSGAII(self.NObj,
                                          self.__ObjectiveGP,
                                          self.pbounds,
@@ -284,12 +286,12 @@ class MOBayesianOpt(object):
 
             # Epsilon
             c = 1 - 1/(2**self.NObj)
-            eps = np.max(np.max(front, axis=1) - np.min(front, axis=1))/n_pts + c*(n_iter - i)
+            eps = (front.max() - front.min())/(n_pts + c*(n_iter - i)) #sostituire n_pts con n_pareto vera
             # Reference Point
             ref_point = list(np.max(front, axis=0) + 1)
             # Initialize hypervolume
             population = np.asarray(pop)
-            HV = hypervolume(pop, ref_point)
+            HV = hypervolume(pop, ref_point) # Sostituire pop con pareto front vera
             idxs = np.zeros(shape=(len(pop)))
 
             for k in range(population.shape[0]):
@@ -298,21 +300,16 @@ class MOBayesianOpt(object):
                     m, s = self.GP[i].predict(population[k].reshape(1,-1), return_std=True)
                     y_pot[i] = m + level*s
 
-                # Calculate penalty
-                p = self.__calc_penalty(front, y_pot, eps)
-
-                # Hypervolume contributions (da correggere perchè bisogna passare le x ad hypervolume)
-                front_new = front
-                front_new[k] = y_pot
-                HV_new = hypervolume(front_new, ref_point) - p
-                idxs[k] = HV - HV_new
+                # Calculate f
+                f = self.__hv_contrib(front,y_pot,eps,ref_point) #sostituire front con vera pareto front
+                idxs[k] = f
 
             best_iter = np.argmax(idxs)
-            self.x_try = pop[best_iter]
-
+            self.x_try = population[best_iter]
             dummy = self.space.observe_point(self.x_try)
             self.y_Pareto, self.x_Pareto = self.space.ParetoSet()
 
+            '''
             self.counter += 1
 
             self.vprint(f"|PF| = {self.space.ParetoSize:4d} at"
@@ -331,8 +328,8 @@ class MOBayesianOpt(object):
                     PopInd = [pop[i] for i in Ind]
                     self.__PrintOutput(front[Ind, :], PopInd,
                                        SaveFile)
-
-        return front, np.asarray(pop)
+            '''
+        return front, pop #sostituire con vera pareto front e vero pareto set
 
 
 
@@ -709,42 +706,18 @@ class MOBayesianOpt(object):
 
         return
 
-    def __calc_penalty(self,front,y_pot,eps):
-        # da ottimizzare
-        #eps_dom_idxs = []
+    def __hv_contrib(self,front,y_pot,eps,ref_point):
         n_pts = front.shape[0]
-        #dom_idxs = list(range(n_pts))
-        dom_idxs = []
-        # qui probabilmente la lista ha dimensione n_pts x Nobj
-
-        # controllo punti dominanti
-        for i in range(n_pts):
-            all_dom = True
-            for j in range(front.shape[1]):
-                if (y_pot[j] >= front[i,j]):
-                    all_dom = False
-                    break
-
-            if all_dom : dom_idxs.append(i) # il punto i domina y_pot in tutte le componenti
-
         p = 0
-        # calcolo penalty per punti che dominano y_pot in tutte le componenti
-        for idx in dom_idxs:
-            prod = 1
-            for j in range(front.shape[1]):
-                prod = prod * (1 + (front[idx, j] - y_pot[j]))
+        for i in range(n_pts):
+            # check epsilon dominance
+            if (np.min(y_pot <= front[i, :] + eps)):
+                p = -1 + np.prod(1 + front[i,:] - y_pot, where = front[i,:] >= y_pot) #calculate penalty
 
-            p = p - 1 + prod
+        if (p == 0):
+            front_new = np.vstack((front,y_pot))
+            f = hypervolume(front_new, ref_point)
+        else:
+            f = p
 
-        # controllo eps-dominati
-        eps_pts = list(set(range(n_pts)).symmetric_difference(set(dom_idxs)))
-        for i in eps_pts:
-            prod = 1
-
-            for j in range(front.shape[1]):
-                if  (y_pot[j] < front[i, j] - eps):  # eps-dominance
-                    prod = prod * (1 + (front[i, j] - y_pot[j]))
-
-            p = p - 1 + prod
-
-        return p
+        return f
