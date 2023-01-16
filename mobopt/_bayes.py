@@ -6,6 +6,7 @@ import matplotlib.pyplot as pl
 # from sklearn.gaussian_process import GaussianProcessRegressor as GPR
 from sklearn.gaussian_process.kernels import Matern
 
+from scipy.stats import norm
 from scipy.spatial.distance import directed_hausdorff as HD
 from deap.benchmarks.tools import hypervolume
 from warnings import warn
@@ -257,8 +258,7 @@ class MOBayesianOpt(object):
 
     def maximize_smsego(self,
                         n_iter=100,
-                        n_pts=100,
-                        level = 0.95
+                        n_pts=100
                         ):
         # Allocate necessary space
         if self.N_init_points + n_iter > self.space._n_alloc_rows:
@@ -266,6 +266,8 @@ class MOBayesianOpt(object):
 
 
         self.vprint("Start optimization loop")
+
+        level = -norm.ppf(0.5*(0.5**(1/self.NObj)))
 
         for i in range(n_iter):
 
@@ -289,6 +291,7 @@ class MOBayesianOpt(object):
             # Epsilon
             c = 1 - 1/(2**self.NObj)
             eps = (pfa.max() - pfa.min())/(n_pts + c*(n_iter - i))
+
             # Reference Point
             ref_point = list(np.max(pfa, axis=0) + 1)
             # Initialize hypervolume
