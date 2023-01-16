@@ -83,13 +83,12 @@ def main():
     #                               FrontSampling=[100],
     #                               ReduceProb=args.Reduce)
 
-    front, pop = Optimize.maximize_smsego(n_iter=NIter,FrontSampling=[100])
+    front, pop = Optimize.maximize_smsego(n_iter=NIter)
     PF = np.asarray([np.asarray(y) for y in Optimize.y_Pareto])
     PS = np.asarray([np.asarray(x) for x in Optimize.x_Pareto])
-
-    FileName = "FF_D{:02d}_I{:04d}_NI{:02d}_P{:4.2f}_Q{:4.2f}".\
-               format(NParam, NIter, N_init, Prob, Q) + args.Filename
-
+    #FileName = "FF_D{:02d}_I{:04d}_NI{:02d}_P{:4.2f}_Q{:4.2f}".\
+    #           format(NParam, NIter, N_init, Prob, Q) + args.Filename
+    FileName = "SMS-EGO_" + args.Filename
     np.savez(FileName,
              Front=front,
              Pop=pop,
