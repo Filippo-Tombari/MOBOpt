@@ -32,7 +32,7 @@ def main():
                         required=False)
     parser.add_argument("-ni", dest="NInit", type=int, metavar="NInit",
                         help="Number of initialization points",
-                        required=False, default=5)
+                        required=False, default=1)
     parser.add_argument("-nr", dest="NRest", type=int, metavar="N Restarts",
                         help="Number of restarts of GP optimizer",
                         required=False, default=100)

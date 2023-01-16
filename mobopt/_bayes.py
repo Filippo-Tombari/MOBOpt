@@ -283,7 +283,7 @@ class MOBayesianOpt(object):
             pfs = self.space.x[mask,:]
             # Generation of the evaluation points randomly
             new_pts = np.asarray(self.space.random_points(n_pts))
-            #pop, logbook, front = NSGAII(self.NObj,
+            #new_pts, _, _ = NSGAII(self.NObj,
             #                             self.__ObjectiveGP,
             #                             self.pbounds,
             #                             MU=n_pts)
@@ -295,7 +295,7 @@ class MOBayesianOpt(object):
             # Reference Point
             ref_point = list(np.max(pfa, axis=0) + 1)
             # Initialize hypervolume
-            #population = np.asarray(pop)
+            #new_pts = np.asarray(new_pts)
             HV = sms_hv(pfa, ref_point)
             idxs = np.zeros(shape=(len(new_pts)))
 
