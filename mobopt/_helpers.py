@@ -45,7 +45,7 @@ def plot_1dgp(fig, ax, space, iterations, Front, last):
 def nondominated_pts(pts, return_mask = True):
     """
     Find the pareto-efficient points
-    :param costs: An (n_points, n_costs) array
+    :param pts: An (n_points, n_costs) array
     :param return_mask: True to return a mask
     :return: An array of indices of pareto-efficient points.
         If return_mask is True, this will be an (n_points, ) boolean array
