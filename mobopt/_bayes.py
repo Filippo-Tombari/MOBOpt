@@ -746,18 +746,18 @@ class MOBayesianOpt(object):
 
         """
         n_pts = front.shape[0]
-        p = 0
+        penalty = 0
         for i in range(n_pts):
             # check epsilon dominance
             if np.all(y_pot <= front[i, :] + eps):
                 front_prod, y_pot_prod = np.where(front[i, :] >= y_pot, front[i, :], y_pot)
                 # calculate penalty
-                p = -1 + np.prod(1 + front_prod - y_pot_prod)
+                penalty = -1 + np.prod(1 + front_prod - y_pot_prod)
 
-        if p == 0:
+        if penalty == 0:
             front_new = np.vstack((front, y_pot))
             f = sms_hv(front_new, ref_point)
         else:
-            f = p
+            f = penalty
 
         return f
