@@ -54,7 +54,7 @@ def nondominated_pts(pts):
     nondom_idxs = np.arange(pts.shape[0])
     n_points = pts.shape[0]
     next_point_index = 0  # Next index in the nondom_idxs array to search for
-    while next_point_index<pts.shape[0]:
+    while next_point_index<nondom_pts.shape[0]:
         nondominated_point_mask = np.any(nondom_pts>nondom_pts[next_point_index], axis=1)
         nondominated_point_mask[next_point_index] = True
         nondom_idxs = nondom_idxs[nondominated_point_mask]  # Remove dominated points
