@@ -326,7 +326,7 @@ class MOBayesianOpt(object):
                     y_pot[n] = m + level*s
 
                 # Calculate f
-                f = self.penalty(pfa, y_pot, eps, ref_point)
+                f = self.__hv_contrib(pfa, y_pot, eps, ref_point)
                 contributions[k] = f
 
             best_iter = np.argmax(contributions)
@@ -717,10 +717,11 @@ class MOBayesianOpt(object):
 
         return
 
-    def penalty(self, front, y_pot, eps, ref_point):
+    def __hv_contrib(self, front, y_pot, eps, ref_point):
 
         """
-        Penalty calculation
+        Calculation of the hypervolume contribution of the point y_pot to the current
+        Pareto front
 
         input
         =====
