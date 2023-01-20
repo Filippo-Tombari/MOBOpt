@@ -64,7 +64,7 @@ def main():
 
     FileName = "SMS-EGO_" + args.Filename
     np.savez(FileName,
-             Front=front,
+             Front=-front,
              Pop=pop,
              PF=PF,
              PS=PS)
