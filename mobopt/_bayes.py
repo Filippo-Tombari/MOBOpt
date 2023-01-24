@@ -298,9 +298,7 @@ class MOBayesianOpt(object):
         observation of the objective functions.
         The method is described in the paper:
         Ponweiser, W., Wagner, T., Biermann, D., Vincze, M. (2008). Multiobjective Optimization on a Limited Budget of
-        Evaluations Using Model-Assisted S-Metric Selection. In: Rudolph, G., Jansen, T., Beume, N., Lucas, S., Poloni,
-        C. (eds) Parallel Problem Solving from Nature – PPSN X. PPSN 2008. Lecture Notes in Computer Science,
-        vol 5199. Springer, Berlin, Heidelberg. https://doi.org/10.1007/978-3-540-87700-4_78
+        Evaluations Using Model-Assisted S-Metric Selection. https://doi.org/10.1007/978-3-540-87700-4_78
 
         """
 
