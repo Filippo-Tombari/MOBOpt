@@ -26,7 +26,7 @@ def main():
                         required=True)
     parser.add_argument("-ni", dest="NInit", type=int, metavar="NInit",
                         help="Number of initialization points",
-                        required=False, default=5)
+                        required=False, default=10)
     parser.add_argument("-v", dest="verbose", action='store_true',
                         help="Verbose")
     parser.add_argument("--filename", dest="Filename", type=str,
@@ -58,11 +58,11 @@ def main():
 
     Optimize.initialize(init_points=N_init)
 
-    front, pop = Optimize.maximize_smsego(n_iter=NIter)
+    front, pop = Optimize.maximize_smsego(n_iter=NIter, n_pts=1000)
     PF = np.asarray([np.asarray(y) for y in Optimize.y_Pareto])
     PS = np.asarray([np.asarray(x) for x in Optimize.x_Pareto])
 
-    FileName = "SMS-EGO_" + args.Filename
+    FileName = "SMS-EGO_1000" + args.Filename
     np.savez(FileName,
              Front=-front,
              Pop=pop,
