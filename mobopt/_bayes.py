@@ -480,7 +480,6 @@ class MOBayesianOpt(object):
                                          self.__ObjectiveGP,
                                          self.pbounds,
                                          MU=n_pts)
-            # inserire smsego
             Population = np.asarray(pop)
             IndexF, FatorF = self.__LargestOfLeast(front, self.space.f)
             IndexPop, FatorPop = self.__LargestOfLeast(Population,
