@@ -27,6 +27,9 @@ def main():
     parser.add_argument("-ni", dest="NInit", type=int, metavar="NInit",
                         help="Number of initialization points",
                         required=False, default=10)
+    parser.add_argument("-np", dest="npts", type=int, metavar="npts",
+                        help="Number of random points to sample at each iteration",
+                        required=False, default=1000)
     parser.add_argument("-v", dest="verbose", action='store_true',
                         help="Verbose")
     parser.add_argument("--filename", dest="Filename", type=str,
@@ -39,6 +42,7 @@ def main():
     NParam = args.ND
     NIter = args.NI
     N_init = args.NInit
+    n_pts = args.npts
     verbose = args.verbose
 
     PB = np.asarray([[0, 1]]*NParam)
@@ -58,7 +62,7 @@ def main():
 
     Optimize.initialize(init_points=N_init)
 
-    front, pop = Optimize.maximize_smsego(n_iter=NIter, n_pts=1000)
+    front, pop = Optimize.maximize_smsego(n_iter=NIter, n_pts=n_pts)
     PF = np.asarray([np.asarray(y) for y in Optimize.y_Pareto])
     PS = np.asarray([np.asarray(x) for x in Optimize.x_Pareto])
 
