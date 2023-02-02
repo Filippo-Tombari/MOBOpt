@@ -28,7 +28,8 @@ if args.TPF is not None:
     f2 = F2[ISorted]
 else:
     f1 = np.linspace(0, 1, 1000)
-    f2 = 1 - np.sqrt(f1)
+    f2 = 1 - f1**2
+    #f2 = 1 - np.sqrt(f1)
 
 if args.Filename1[-3:] == "npz":
     Data = np.load(args.Filename1)
@@ -37,7 +38,7 @@ if args.Filename1[-3:] == "npz":
 
 else:
     raise TypeError("Extension should be npz")
-
+'''
 if args.Filename2[-3:] == "npz":
     Data = np.load(args.Filename2)
     F1D2, F2D2 = Data["Front"][:, 0], Data["Front"][:, 1]
@@ -45,13 +46,13 @@ if args.Filename2[-3:] == "npz":
 
 else:
     raise TypeError("Extension should be npz")
-
+'''
 pl.plot(F1D1[I2D1], F2D1[I2D1], 'o--', label="SMS-EGO")
-pl.plot(F1D2[I2D2], F2D2[I2D2], 'o--', label="NSGAII")
+#pl.plot(F1D2[I2D2], F2D2[I2D2], 'o--', label="NSGAII")
 #if args.TPF is not None:
 pl.plot(f1, f2, 'o', label="TPF")
 pl.legend()
-
+pl.title("ZDT2")
 pl.xlabel(r"$f_1$")
 pl.ylabel(r"$f_2$")
 
