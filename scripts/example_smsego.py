@@ -1,29 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#example_zdt1.py
+#example_smsego.py
 import numpy as np
 import matplotlib.pyplot as pl
-
+import targets
 import mobopt as mo
-import deap.benchmarks as db
 import argparse
 
 
-def target(x):
-    return np.asarray(db.zdt1(x))
 
-def kursawe(x):
-    return np.asarray(db.kursawe(x))
-
-def fonseca(x):
-    return np.asarray(db.fonseca(x))
-
-def zdt3(x):
-    return np.asarray(db.zdt3(x))
-
-def zdt2(x):
-    return np.asarray(db.zdt2(x))
 
 def main():
 
@@ -43,9 +29,9 @@ def main():
                         required=False, default=1000)
     parser.add_argument("-v", dest="verbose", action='store_true',
                         help="Verbose")
-    parser.add_argument("--filename", dest="Filename", type=str,
-                        default="ZDT1.dat",
-                        help="Filename for saving data")
+    parser.add_argument("--target", dest="target", type=str,
+                        default="ZDT1",
+                        help="Target function name")
     parser.set_defaults(Reduce=False)
 
     args = parser.parse_args()
@@ -55,23 +41,30 @@ def main():
     N_init = args.NInit
     n_pts = args.npts
     verbose = args.verbose
-
+    f1 = np.linspace(0, 1, 1000)
+    if args.target == "ZDT1":
+        target = targets.zdt1
+        f2 = 1 - np.sqrt(f1)
+    elif args.target == "ZDT2":
+        target = targets.zdt2
+        f2 = 1 - f1 ** 2
+    else:
+        raise TypeError("Target function not available")
+    Filename = args.target + ".dat"
     PB = np.asarray([[0, 1]]*NParam)
 
-    f1 = np.linspace(0, 1, 1000)
-    f2 = 1-f1**2
-    #f2 = 1-np.sqrt(f1)
 
 
-    Optimize = mo.MOBayesianOpt(target=zdt2,
+    Optimize = mo.MOBayesianOpt(target=target,
                                 NObj=2,
                                 pbounds=PB,
                                 Picture=True,
                                 MetricsPS=False,
                                 TPF=None,
                                 verbose=verbose,
-                                Filename=args.Filename,
-                                max_or_min='min')
+                                Filename=Filename,
+                                max_or_min='min',
+                                RandomSeed=10)
 
     Optimize.initialize(init_points=N_init)
 
@@ -79,7 +72,7 @@ def main():
     PF = np.asarray([np.asarray(y) for y in Optimize.y_Pareto])
     PS = np.asarray([np.asarray(x) for x in Optimize.x_Pareto])
 
-    FileName = "SMS-EGO_" + args.Filename
+    FileName = "SMS-EGO_" + Filename
     np.savez(FileName,
              Front=-front,
              Pop=pop,
@@ -88,7 +81,7 @@ def main():
 
 
     fig, ax = pl.subplots(1, 1)
-    #ax.plot(f1, f2, '-', label="TPF")
+    ax.plot(f1, f2, '-', label="TPF")
     ax.scatter(-front[:, 0], -front[:, 1], label=r"$\chi$")
     ax.grid()
     ax.set_xlabel(r'$f_1$')

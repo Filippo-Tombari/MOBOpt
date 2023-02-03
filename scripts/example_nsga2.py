@@ -5,12 +5,9 @@ import numpy as np
 import matplotlib.pyplot as pl
 
 import mobopt as mo
-import deap.benchmarks as db
+import targets
 import argparse
 
-
-def target(x):
-    return np.asarray(db.zdt1(x))
 
 
 def main():
@@ -37,9 +34,9 @@ def main():
                         required=False, default=100)
     parser.add_argument("-v", dest="verbose", action='store_true',
                         help="Verbose")
-    parser.add_argument("--filename", dest="Filename", type=str,
-                        default="ZDT1.dat",
-                        help="Filename for saving data")
+    parser.add_argument("--target", dest="target", type=str,
+                        default="ZDT1",
+                        help="Target function name")
     parser.add_argument("--rprob", dest="Reduce", action="store_true",
                         help="If present reduces prob linearly" +
                         " along simmulation")
@@ -55,12 +52,20 @@ def main():
         raise ValueError("Prob must be between 0 and 1")
     N_init = args.NInit
     verbose = args.verbose
+    f1 = np.linspace(0, 1, 1000)
+    if args.target == "ZDT1":
+        target = targets.zdt1
+        f2 = 1 - np.sqrt(f1)
+    elif args.target == "ZDT2":
+        target = targets.zdt2
+        f2 = 1 - f1 ** 2
+    else:
+        raise TypeError("Target function not available")
+    Filename = args.target + ".dat"
     Q = args.Q
 
     PB = np.asarray([[0, 1]]*NParam)
 
-    f1 = np.linspace(0, 1, 1000)
-    f2 = (1-np.sqrt(f1))
 
     Optimize = mo.MOBayesianOpt(target=target,
                                 NObj=2,
@@ -70,8 +75,9 @@ def main():
                                 TPF=np.asarray([f1, f2]).T,
                                 verbose=verbose,
                                 n_restarts_optimizer=args.NRest,
-                                Filename=args.Filename,
-                                max_or_min='min')
+                                Filename=Filename,
+                                max_or_min='min',
+                                RandomSeed=10)
 
     Optimize.initialize(init_points=N_init)
 
@@ -88,7 +94,7 @@ def main():
     #FileName = "FF_D{:02d}_I{:04d}_NI{:02d}_P{:4.2f}_Q{:4.2f}".\
     #           format(NParam, NIter, N_init, Prob, Q) + args.Filename
 
-    FileName = "NSGAII_" + args.Filename
+    FileName = "NSGAII_" + Filename
     np.savez(FileName,
              Front=front,
              Pop=pop,

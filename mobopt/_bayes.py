@@ -327,7 +327,7 @@ class MOBayesianOpt(object):
             # Generation of the evaluation points randomly
             #new_pts = np.asarray(self.space.random_points(n_pts))
 
-            #Generation of the evaluation point susing latin hypercube sampling
+            #Generation of the evaluation point using latin hypercube sampling
             new_pts = np.asarray(self.space.lhs_points(n_pts))
 
             # Epsilon
