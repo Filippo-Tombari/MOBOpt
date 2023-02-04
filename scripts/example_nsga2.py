@@ -39,7 +39,7 @@ def main():
                         help="Target function name")
     parser.add_argument("--rprob", dest="Reduce", action="store_true",
                         help="If present reduces prob linearly" +
-                        " along simmulation")
+                        " along simulation")
     parser.set_defaults(Reduce=False)
 
     args = parser.parse_args()
@@ -52,19 +52,43 @@ def main():
         raise ValueError("Prob must be between 0 and 1")
     N_init = args.NInit
     verbose = args.verbose
-    f1 = np.linspace(0, 1, 1000)
     if args.target == "ZDT1":
         target = targets.zdt1
+        f1 = np.linspace(0, 1, 1000)
         f2 = 1 - np.sqrt(f1)
+        PB = np.asarray([[0, 1]] * NParam)
     elif args.target == "ZDT2":
         target = targets.zdt2
+        f1 = np.linspace(0, 1, 1000)
         f2 = 1 - f1 ** 2
+        PB = np.asarray([[0, 1]] * NParam)
+    elif args.target == "ZDT3":
+        target = targets.zdt3
+        f1 = np.linspace(0, .08300, 200)
+        f1 = np.append(f1, np.linspace(.1822, .25770, 200))
+        f1 = np.append(f1, np.linspace(.4093, .45380, 200))
+        f1 = np.append(f1, np.linspace(.6183, .65250, 200))
+        f1 = np.append(f1, np.linspace(.8233, .8518, 200))
+        f2 = 1 - np.sqrt(f1) - f1 * np.sin(10 * np.pi * f1)
+        PB = np.asarray([[0, 1]] * NParam)
+    elif args.target == "SCHAFFER":
+        target = targets.schaffer_mo
+        x = np.linspace(-1000, 1000, 10000)
+        NParam = 1
+        f1 = x ** 2
+        f2 = (x - 2) ** 2
+        PB = np.asarray([[-1000, 1000]] * NParam)
+    elif args.target == "FONSECA":
+        target = targets.fonseca
+        NParam = 3
+        x = np.linspace(-4, 4, 1000)
+        f1 = 1 - np.exp(-3 * ((x - 1 / np.sqrt(3)) ** 2))
+        f2 = 1 - np.exp(-3 * ((x + 1 / np.sqrt(3)) ** 2))
+        PB = np.asarray([[-4, 4]] * NParam)
     else:
         raise TypeError("Target function not available")
     Filename = args.target + ".dat"
     Q = args.Q
-
-    PB = np.asarray([[0, 1]]*NParam)
 
 
     Optimize = mo.MOBayesianOpt(target=target,
