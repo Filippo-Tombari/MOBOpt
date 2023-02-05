@@ -73,18 +73,18 @@ def main():
         PB = np.asarray([[0, 1]] * NParam)
     elif args.target == "SCHAFFER":
         target = targets.schaffer_mo
-        x = np.linspace(-1000, 1000, 10000)
+        x = np.linspace(0, 1, 100000)
         NParam = 1
-        f1 = x ** 2
-        f2 = (x - 2) ** 2
+        f1 = (2000 * x - 1000) ** 2 / 10**6
+        f2 = (2000 * x - 1000 - 2) ** 2 / 10**6
         PB = np.asarray([[-1000, 1000]] * NParam)
     elif args.target == "FONSECA":
         target = targets.fonseca
         NParam = 3
-        x = np.linspace(-4, 4, 1000)
-        f1 = 1 - np.exp(-3 * ((x - 1 / np.sqrt(3)) ** 2))
-        f2 = 1 - np.exp(-3 * ((x + 1 / np.sqrt(3)) ** 2))
-        PB = np.asarray([[-4, 4]] * NParam)
+        x = np.linspace(0, 1, 10000)
+        f1 = 1 - np.exp(-3 * ((8 * x - 4 - 1 / np.sqrt(3)) ** 2))
+        f2 = 1 - np.exp(-3 * ((8 * x - 4 + 1 / np.sqrt(3)) ** 2))
+        PB = np.asarray([[0, 1]] * NParam)
     else:
         raise TypeError("Target function not available")
     Filename = args.target + ".dat"
