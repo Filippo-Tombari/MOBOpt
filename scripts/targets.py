@@ -10,6 +10,12 @@ def zdt2(x):
 def zdt3(x):
     return np.asarray(db.zdt3(x))
 
+def zdt4(x):
+    return np.asarray(db.zdt4(x))
+
+def zdt6(x):
+    return np.asarray(db.zdt6(x))
+
 def schaffer_mo(x):
     return np.asarray(db.schaffer_mo(x))
 

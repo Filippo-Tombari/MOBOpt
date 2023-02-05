@@ -32,6 +32,14 @@ elif args.target == "ZDT3":
     f1 = np.append(f1, np.linspace(.6183, .65250, 200))
     f1 = np.append(f1, np.linspace(.8233, .8518, 200))
     f2 = 1 - np.sqrt(f1) - f1 * np.sin(10 * np.pi * f1)
+elif args.target == "ZDT4":
+    f1 = np.linspace(0, 1, 1000)
+    #g = 1 + 90 + np.sum((20 * f1 - 10) ** 2 - 10 * np.cos(4 * np.pi * (20 * f1 - 10)))
+    f2 = 1 - np.sqrt(f1 )
+elif args.target == "ZDT6":
+    x = np.linspace(0, 1, 1000)
+    f1 = 1 - np.exp(-4*x) * np.sin(6*np.pi*x)**6
+    f2 = 1 - f1**2
 elif args.target == "SCHAFFER":
     x = np.linspace(0, 2, 100)
     NParam = 1
