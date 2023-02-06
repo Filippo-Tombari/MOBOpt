@@ -40,62 +40,16 @@ def main():
     N_init = args.NInit
     n_pts = args.npts
     verbose = args.verbose
+    target = targets.target(args.target.lower(),NParam)
+    f1 = target.f1
+    f2 = target.f2
+    PB = target.PB
+    func = target.func
 
-    if args.target == "ZDT1":
-        target = targets.zdt1
-        f1 = np.linspace(0, 1, 1000)
-        f2 = 1 - np.sqrt(f1)
-        PB = np.asarray([[0, 1]] * NParam)
-    elif args.target == "ZDT2":
-        target = targets.zdt2
-        f1 = np.linspace(0, 1, 1000)
-        f2 = 1 - f1 ** 2
-        PB = np.asarray([[0, 1]] * NParam)
-    elif args.target == "ZDT3":
-        target = targets.zdt3
-        f1 = np.linspace(0, .08300, 200)
-        f1 = np.append(f1, np.linspace(.1822, .25770, 200))
-        f1 = np.append(f1, np.linspace(.4093, .45380, 200))
-        f1 = np.append(f1, np.linspace(.6183, .65250, 200))
-        f1 = np.append(f1, np.linspace(.8233, .8518, 200))
-        f2 = 1 - np.sqrt(f1) - f1 * np.sin(10 * np.pi * f1)
-        PB = np.asarray([[0, 1]] * NParam)
-    elif args.target == "ZDT4":
-        target = targets.zdt4
-        NParam = 10
-        f1 = np.linspace(0, 1, 1000)
-        #g = 1 + 10*(NParam-1) + np.sum((20*f1-10)**2 - 10 * np.cos(4*np.pi*(20*f1-10)))
-        f2 = 1 - np.sqrt(f1)
-        PB = np.append(np.asarray([[0, 1]]), [[-10,10]] * (NParam-1))
-        PB = np.reshape(PB, [NParam, 2])
-    elif args.target == "ZDT6":
-        target = targets.zdt6
-        NParam = 10
-        x = np.linspace(0, 1, 1000)
-        f1 = 1 - np.exp(-4*x) * np.sin(6*np.pi*x)**6
-        f2 = 1 - f1**2
-        PB = np.asarray([[0, 1]] * NParam)
-    elif args.target == "SCHAFFER":
-        target = targets.schaffer_mo
-        x = np.linspace(0, 1, 100000)
-        NParam = 1
-        f1 = (2000*x-1000)**2 / 10**6
-        f2 = (2000*x-1000 - 2)**2 / 10**6
-        PB = np.asarray([[0, 1]] * NParam)
-    elif args.target == "FONSECA":
-        target = targets.fonseca
-        NParam = 3
-        x = np.linspace(0, 1, 10000)
-        f1 = 1 - np.exp( -3*( (8*x-4-1/np.sqrt(3) )**2 ))
-        f2 = 1 - np.exp( -3*( (8*x-4+1/np.sqrt(3) )**2 ))
-        PB = np.asarray([[0, 1]] * NParam)
-    else:
-        raise TypeError("Target function not available")
     Filename = args.target + ".dat"
 
 
-
-    Optimize = mo.MOBayesianOpt(target=target,
+    Optimize = mo.MOBayesianOpt(target=func,
                                 NObj=2,
                                 pbounds=PB,
                                 Picture=True,
