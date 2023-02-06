@@ -2,6 +2,7 @@
 
 import numpy as np
 from pyDOE import lhs
+import matplotlib.pyplot as plt
 
 class TargetSpace(object):
     """
@@ -355,3 +356,49 @@ class TargetSpace(object):
             X[:, i] = X[:, i] * (self.pbounds[i][1] - self.pbounds[i][0]) + self.pbounds[i][0]
 
         return X
+
+    def plot_gp(self, gpr_model, n_samples, n_eval_pts, title):
+        """
+        Plot n_samples inside pbounds drawn from the Gaussian process model in input.
+
+        If the Gaussian process model is not trained then the drawn samples are
+        drawn from the prior distribution. Otherwise, the samples are drawn from
+        the posterior distribution.
+        """
+        X = np.asarray(self.random_points(n_eval_pts))
+
+        y_mean = np.zeros((self.NObj, n_eval_pts))
+        y_std = np.zeros((self.NObj, n_eval_pts))
+        y_samples = np.zeros((self.NObj, n_eval_pts, n_samples))
+
+        for i in range(self.NObj):
+            y_mean[i], y_std[i] = gpr_model[i].predict(X, return_std=True)
+            y_samples[i] = gpr_model[i].sample_y(X, n_samples=n_samples)
+
+        fig, ax = plt.subplots(1, 1)
+
+        for idx in range(n_samples):
+            ax.plot(
+                np.sort(X[:, 0]),
+                np.sort(y_samples[0][:, idx]),
+                linestyle="--",
+                alpha=0.7,
+                label=f"Sampled function #{idx + 1}"
+            )
+
+        ax.plot(np.sort(X[:, 0]), np.sort(y_mean[0]), label="Mean", color="black")
+        ax.fill_between(
+            np.sort(X[:, 0]),
+            np.sort(y_mean[0] - y_std[0]),
+            np.sort(y_mean[0] + y_std[0]),
+            alpha=0.3,
+            label="Standard deviation"
+        )
+        ax.set_xlabel("1st component of X")
+        ax.set_ylabel("f1")
+        ax.legend(loc=0)
+        ax.scatter(np.sort(self._X[:, 0]), np.sort(self._F[:, 0]), label="Observations", color="red")
+
+        ax.set_title(title)
+
+        fig.savefig("gp_" + title + ".png")

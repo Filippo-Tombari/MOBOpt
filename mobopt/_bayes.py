@@ -362,6 +362,10 @@ class MOBayesianOpt(object):
         front = self.space.f[mask, :]
         pop = self.space.x[mask, :]
 
+
+        #Plot 1st component of X against GP[0]
+        self.space.plot_gp(self.GP, n_samples=2, n_eval_pts=50, title="posterior")
+
         return front, pop
 
 
