@@ -3,7 +3,7 @@ import numpy as np
 
 
 class target:
-    def __init__(self,name, Nparam):
+    def __init__(self,name, Nparam=1):
         self.name = name
         if self.name == 'zdt1':
             self.f1 = np.linspace(0, 1, 1000)
@@ -38,9 +38,9 @@ class target:
             self.PB = np.asarray([[0, 1]] * Nparam)
             self.func = zdt6
         elif self.name == 'schaffer':
-            x = np.linspace(0, 1, 10000)
-            self.f1 = 1 - np.exp(-3 * ((8 * x - 4 - 1 / np.sqrt(3)) ** 2))
-            self.f2 = 1 - np.exp(-3 * ((8 * x - 4 + 1 / np.sqrt(3)) ** 2))
+            x = np.linspace(0, 2, 100)
+            self.f1 = (x ** 2 )
+            self.f2 = (x - 2) ** 2
             self.PB = np.asarray([[0, 1]] * Nparam)
             self.func = schaffer_mo
         elif self.name == 'fonseca':
