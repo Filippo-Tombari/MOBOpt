@@ -313,7 +313,7 @@ class MOBayesianOpt(object):
         level = -norm.ppf(0.5*(0.5**(1/self.NObj)))
 
         #Plot of GP prior
-        self.space.plot_gp(self.GP, n_samples=2, n_eval_pts=100, title="prior")
+        #self.space.plot_gp(self.GP, n_samples=2, n_eval_pts=50, title="prior")
 
         for i in range(n_iter):
 
@@ -366,8 +366,8 @@ class MOBayesianOpt(object):
         pop = self.space.x[mask, :]
 
 
-        #Plot 1st component of X against GP[0]
-        self.space.plot_gp(self.GP, n_samples=2, n_eval_pts=100, title="posterior")
+        #Plot 1st component of X against GP[1]
+        self.space.plot_gp(self.GP, n_samples=2, n_eval_pts=50, title="posterior")
 
         return front, pop
 
