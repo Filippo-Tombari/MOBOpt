@@ -366,6 +366,7 @@ class TargetSpace(object):
         the posterior distribution.
         """
         X = np.asarray(self.random_points(n_eval_pts))
+        X = X.reshape(-1, self.NParam)
 
         y_mean = np.zeros((self.NObj, n_eval_pts))
         y_std = np.zeros((self.NObj, n_eval_pts))
@@ -376,28 +377,28 @@ class TargetSpace(object):
             y_samples[i] = gpr_model[i].sample_y(X, n_samples=n_samples)
 
         fig, ax = plt.subplots(1, 1)
-
         for idx in range(n_samples):
             ax.plot(
                 np.sort(X[:, 0]),
-                np.sort(y_samples[0][:, idx]),
+                y_samples[0, np.argsort(X[:, 0]), idx],
                 linestyle="--",
                 alpha=0.7,
                 label=f"Sampled function #{idx + 1}"
             )
 
-        ax.plot(np.sort(X[:, 0]), np.sort(y_mean[0]), label="Mean", color="black")
+        ax.plot(np.sort(X[:, 0]), y_mean[0, np.argsort(X[:, 0])], label="Mean", color="black")
         ax.fill_between(
             np.sort(X[:, 0]),
-            np.sort(y_mean[0] - y_std[0]),
-            np.sort(y_mean[0] + y_std[0]),
-            alpha=0.3,
+            y_mean[0, np.argsort(X[:, 0])] - y_std[0,np.argsort(X[:, 0])],
+            y_mean[0, np.argsort(X[:, 0])] + y_std[0,np.argsort(X[:, 0])],
+            alpha=0.1,
             label="Standard deviation"
         )
         ax.set_xlabel("1st component of X")
         ax.set_ylabel("f1")
+        #ax.scatter(np.sort(self._X[:, 0]), self._F[np.argsort(self._X[:,0]),0], label="Observations", color="red")
+
         ax.legend(loc=0)
-        ax.scatter(np.sort(self._X[:, 0]), np.sort(self._F[:, 0]), label="Observations", color="red")
 
         ax.set_title(title)
 
