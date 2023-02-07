@@ -94,7 +94,7 @@ class MOBayesianOpt(object):
             analogue) if available or seed from the clock otherwise.
 
         kernel -- kernel object
-            kernel object to be passed to the gausian process
+            kernel object to be passed to the gaussian process
             regressor, if None, the default `Matern(nu=1.5)` is used
 
             For valid kernel objects, visit:
@@ -358,6 +358,8 @@ class MOBayesianOpt(object):
             #Update of the Pareto Front
             self.y_Pareto, self.x_Pareto = self.space.ParetoSet()
 
+
+
         mask = nondominated_pts(self.space.f)
         front = self.space.f[mask, :]
         pop = self.space.x[mask, :]
@@ -564,6 +566,7 @@ class MOBayesianOpt(object):
             HausDist = np.nan
 
         Cover = Coverage(front)
+
         HV = hypervolume(pop, [11.0]*self.NObj)
 
         if self.MetricsPS and self.Metrics:

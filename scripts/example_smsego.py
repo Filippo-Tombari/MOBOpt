@@ -54,7 +54,7 @@ def main():
                                 pbounds=PB,
                                 Picture=True,
                                 MetricsPS=False,
-                                TPF=None,
+                                TPF=np.asarray([f1, f2]).T,
                                 verbose=verbose,
                                 Filename=Filename,
                                 max_or_min='min',
