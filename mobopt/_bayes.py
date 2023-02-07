@@ -364,6 +364,7 @@ class MOBayesianOpt(object):
         front = self.space.f[mask, :]
         pop = self.space.x[mask, :]
 
+
         return front, pop
 
 
