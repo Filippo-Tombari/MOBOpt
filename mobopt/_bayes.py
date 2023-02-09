@@ -173,7 +173,8 @@ class MOBayesianOpt(object):
         self.GP = [None] * self.NObj
         for i in range(self.NObj):
             self.GP[i] = GPR(kernel=kernel,
-                             n_restarts_optimizer=self.n_rest_opt)
+                             n_restarts_optimizer=self.n_rest_opt,
+                             random_state = RandomSeed)
 
         # store starting points
         self.init_points = []
@@ -189,7 +190,6 @@ class MOBayesianOpt(object):
                                  RandomSeed=RandomSeed,
                                  verbose=self.verbose)
 
-        np.random.seed(RandomSeed)
 
         if self.Picture and self.NObj == 2:
             self.fig, self.ax = pl.subplots(1, 1, figsize=(5, 4))
